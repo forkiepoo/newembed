@@ -3,53 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Custom Block</title>
+  <title>Kairo Clone</title>
   <style>
-    body {
-      font-family: sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+    body, html {
       margin: 0;
-      background: #f5f7fa;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      background: #0f172a; /* dark background */
     }
-
-    .block {
-      width: 300px;
-      height: 300px;
-      background: #3498db; /* change color */
-      border-radius: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-      color: white;
-    }
-
-    .block h2 {
-      margin-bottom: 1rem;
-    }
-
-    .avatar {
-      width: 100px;
-      height: 100px;
-      background: white;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 3rem;
-      color: #3498db;
-      font-weight: bold;
+    canvas {
+      display: block;
     }
   </style>
 </head>
 <body>
-  <div class="block">
-    <h2>My Block Title</h2>
-    <div class="avatar">🐻</div> <!-- you can swap this emoji for another -->
-  </div>
+  <!-- Three.js 3D library -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+  <!-- Particles.js -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+  <script>
+    // ---- Three.js block ----
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    const geometry = new THREE.BoxGeometry(2, 2, 2);
+    const material = new THREE.MeshStandardMaterial({ color: 0x3498db, roughness: 0.4, metalness: 0.6 });
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+
+    const light = new THREE.PointLight(0xffffff, 1);
+    light.position.set(5, 5, 5);
+    scene.add(light);
+
+    camera.position.z = 5;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // ---- Particles.js background ----
+    particlesJS("particles-js", {
+      "particles": {
+        "number": { "value": 80 },
+        "size": { "value": 3 }
+      }
+    });
+  </script>
 </body>
 </html>
