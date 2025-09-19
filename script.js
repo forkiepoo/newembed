@@ -1,79 +1,88 @@
-// Pomodoro settings
-const WORK_TIME = 25 * 60;
-const SHORT_BREAK = 5 * 60;
-const LONG_BREAK = 15 * 60;
+// Phases of Pomodoro
+const phases = [
+  { label: "Focus", time: 25 * 60 },
+  { label: "Short Break", time: 5 * 60 },
+  { label: "Focus", time: 25 * 60 },
+  { label: "Short Break", time: 5 * 60 },
+  { label: "Focus", time: 25 * 60 },
+  { label: "Long Break", time: 15 * 60 },
+];
 
-let countdownSeconds = WORK_TIME;
-let isRunning = false;
-let timerInterval;
-let cycleCount = 0;
+let phaseIndex = 0;
+let timeLeft = phases[phaseIndex].time;
+let timerRunning = false;
+let intervalId = null;
 
+// Elements
+const clockEl = document.getElementById("clock");
 const countdownEl = document.getElementById("countdown");
 const characterEl = document.getElementById("character");
+const titleEl = document.querySelector(".title");
 
-// Set initial character
+// Choose default character
 characterEl.src = characters.bear;
 
-// Update real-time clock
+// Live clock (header)
 function updateClock() {
   const now = new Date();
   const h = String(now.getHours()).padStart(2, "0");
   const m = String(now.getMinutes()).padStart(2, "0");
   const s = String(now.getSeconds()).padStart(2, "0");
-  document.getElementById("clock").textContent = `${h}:${m}:${s}`;
+  clockEl.textContent = `${h}:${m}:${s}`;
 }
 setInterval(updateClock, 1000);
 updateClock();
 
-// Format seconds into MM:SS
-function formatTime(seconds) {
-  const m = String(Math.floor(seconds / 60)).padStart(2, "0");
-  const s = String(seconds % 60).padStart(2, "0");
-  return `${m}:${s}`;
+// Format seconds -> mm:ss or hh:mm:ss
+function formatTime(sec) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  if (h > 0) {
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  }
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
 // Update countdown display
-function updateCountdown() {
-  countdownEl.textContent = formatTime(countdownSeconds);
+function renderCountdown() {
+  countdownEl.textContent = formatTime(timeLeft);
+  titleEl.textContent = phases[phaseIndex].label;
 }
 
-// Handle timer
-function startTimer() {
-  if (!isRunning) {
-    isRunning = true;
-    timerInterval = setInterval(() => {
-      if (countdownSeconds > 0) {
-        countdownSeconds--;
-        updateCountdown();
-      } else {
-        clearInterval(timerInterval);
-        isRunning = false;
-        cycleCount++;
-
-        // Decide next session
-        if (cycleCount % 4 === 0) {
-          countdownSeconds = LONG_BREAK;
-          characterEl.src = characters.sleepy;
-        } else if (cycleCount % 2 === 0) {
-          countdownSeconds = SHORT_BREAK;
-          characterEl.src = characters.sleepy;
-        } else {
-          countdownSeconds = WORK_TIME;
-          characterEl.src = characters.bear;
-        }
-
-        updateCountdown();
-        startTimer(); // auto-continue
-      }
-    }, 1000);
+// Tick
+function tick() {
+  if (timeLeft > 0) {
+    timeLeft--;
+    renderCountdown();
   } else {
-    clearInterval(timerInterval);
-    isRunning = false;
+    // Phase finished -> move to next
+    phaseIndex = (phaseIndex + 1) % phases.length;
+    timeLeft = phases[phaseIndex].time;
+    renderCountdown();
+    bounceCharacter();
   }
 }
 
-// Toggle timer on character click
-characterEl.addEventListener("click", startTimer);
+// Start / stop on character click
+characterEl.addEventListener("click", () => {
+  if (!timerRunning) {
+    timerRunning = true;
+    intervalId = setInterval(tick, 1000);
+    bounceCharacter();
+  } else {
+    timerRunning = false;
+    clearInterval(intervalId);
+  }
+});
+
+// Small bounce effect
+function bounceCharacter() {
+  characterEl.style.transform = "scale(1.2)";
+  setTimeout(() => {
+    characterEl.style.transform = "scale(1)";
+  }, 300);
+}
 
 // Init
-updateCountdown();
+renderCountdown();
