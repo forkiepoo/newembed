@@ -13,12 +13,12 @@ body {
   height: 100vh;
   justify-content: space-between;
   position: relative;
-  z-index: 2;
+  z-index: 1;
 }
 
 header {
   padding: 1rem;
-  z-index: 3;
+  z-index: 2;
   position: relative;
 }
 
@@ -32,24 +32,29 @@ header {
   font-size: 1.2rem;
 }
 
-main img.character {
+main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.character {
   width: 150px;
   margin: auto;
   display: block;
   cursor: pointer;
-  transition: transform 0.2s ease;
-  position: relative;
-  z-index: 3;
+  transition: transform 0.2s;
 }
 
-main img.character:active {
-  transform: scale(0.9);
+.character:active {
+  transform: scale(0.95);
 }
 
 footer {
   padding: 1rem;
-  z-index: 3;
   position: relative;
+  z-index: 2;
 }
 
 #countdown {
@@ -58,30 +63,38 @@ footer {
   background: #fff;
   border-radius: 8px;
   font-weight: bold;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
+}
+
+/* Background layers */
+.background {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
 }
 
 /* Waves */
 .wave {
   position: absolute;
-  bottom: 0;
-  left: 0;
+  bottom: -50px;
+  left: -50%;
   width: 200%;
   height: 200px;
   background: rgba(255, 255, 255, 0.3);
   border-radius: 100%;
   animation: waveAnimation 8s linear infinite;
-  transform: translateX(-25%);
-  z-index: 1;
 }
 
 .wave1 {
-  bottom: 20%;
+  bottom: 15%;
   animation-duration: 10s;
 }
 
 .wave2 {
-  bottom: 10%;
+  bottom: 5%;
   animation-duration: 15s;
   background: rgba(255, 255, 255, 0.2);
 }
@@ -97,22 +110,20 @@ footer {
 .particles::after {
   content: '';
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: 200%;
+  height: 200%;
   top: 0; left: 0;
   background-image: radial-gradient(white 2px, transparent 2px);
   background-size: 50px 50px;
-  animation: particlesMove 20s linear infinite;
-  opacity: 0.5;
-  z-index: 0;
+  animation: particlesMove 25s linear infinite;
+  opacity: 0.4;
 }
 
 .particles::after {
-  animation-duration: 35s;
-  opacity: 0.3;
+  animation-duration: 40s;
+  opacity: 0.2;
 }
 
 @keyframes particlesMove {
   from { transform: translateY(0); }
-  to { transform: translateY(-100%); }
-}
+  to { transform: translateY(-50
