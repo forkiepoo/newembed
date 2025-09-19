@@ -1,11 +1,11 @@
-// Phases of Pomodoro
+// Pomodoro phases
 const phases = [
-  { label: "Focus", time: 25 * 60 },
-  { label: "Short Break", time: 5 * 60 },
-  { label: "Focus", time: 25 * 60 },
-  { label: "Short Break", time: 5 * 60 },
-  { label: "Focus", time: 25 * 60 },
-  { label: "Long Break", time: 15 * 60 },
+  { label: "Focus", time: 25 * 60, icon: "📘" },
+  { label: "Short Break", time: 5 * 60, icon: "☕" },
+  { label: "Focus", time: 25 * 60, icon: "📘" },
+  { label: "Short Break", time: 5 * 60, icon: "☕" },
+  { label: "Focus", time: 25 * 60, icon: "📘" },
+  { label: "Long Break", time: 15 * 60, icon: "💤" },
 ];
 
 let phaseIndex = 0;
@@ -18,11 +18,12 @@ const clockEl = document.getElementById("clock");
 const countdownEl = document.getElementById("countdown");
 const characterEl = document.getElementById("character");
 const titleEl = document.querySelector(".title");
+const phaseIconEl = document.querySelector(".phase-icon");
 
-// Choose default character
+// Default character
 characterEl.src = characters.bear;
 
-// Live clock (header)
+// Clock in header
 function updateClock() {
   const now = new Date();
   const h = String(now.getHours()).padStart(2, "0");
@@ -33,38 +34,34 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-// Format seconds -> mm:ss or hh:mm:ss
+// Format helper
 function formatTime(sec) {
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
+  const m = Math.floor(sec / 60);
   const s = sec % 60;
-  if (h > 0) {
-    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-  }
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-// Update countdown display
-function renderCountdown() {
+// Render countdown + labels
+function render() {
   countdownEl.textContent = formatTime(timeLeft);
   titleEl.textContent = phases[phaseIndex].label;
+  phaseIconEl.textContent = phases[phaseIndex].icon;
 }
 
-// Tick
+// Tick function
 function tick() {
   if (timeLeft > 0) {
     timeLeft--;
-    renderCountdown();
+    render();
   } else {
-    // Phase finished -> move to next
     phaseIndex = (phaseIndex + 1) % phases.length;
     timeLeft = phases[phaseIndex].time;
-    renderCountdown();
+    render();
     bounceCharacter();
   }
 }
 
-// Start / stop on character click
+// Click to start/stop
 characterEl.addEventListener("click", () => {
   if (!timerRunning) {
     timerRunning = true;
@@ -76,13 +73,67 @@ characterEl.addEventListener("click", () => {
   }
 });
 
-// Small bounce effect
+// Bounce effect
 function bounceCharacter() {
-  characterEl.style.transform = "scale(1.2)";
-  setTimeout(() => {
-    characterEl.style.transform = "scale(1)";
-  }, 300);
+  characterEl.classList.add("bounce");
+  setTimeout(() => characterEl.classList.remove("bounce"), 600);
 }
 
-// Init
-renderCountdown();
+// Init render
+render();
+
+// --------------------
+// PARTICLE SYSTEM
+// --------------------
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+let particlesArray = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+class Particle {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = canvas.height + Math.random() * 100;
+    this.size = Math.random() * 3 + 1;
+    this.speedY = Math.random() * 1 + 0.5;
+    this.alpha = Math.random() * 0.5 + 0.3;
+  }
+  update() {
+    this.y -= this.speedY;
+    if (this.y < -this.size) {
+      this.y = canvas.height + this.size;
+      this.x = Math.random() * canvas.width;
+    }
+  }
+  draw() {
+    ctx.fillStyle = `rgba(255,255,255,${this.alpha})`;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function initParticles() {
+  particlesArray = [];
+  for (let i = 0; i < 100; i++) {
+    particlesArray.push(new Particle());
+  }
+}
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particlesArray.forEach(p => {
+    p.update();
+    p.draw();
+  });
+  requestAnimationFrame(animateParticles);
+}
+
+initParticles();
+animateParticles();
